@@ -110,10 +110,10 @@ stages:
       displayName: 'Publish artifacts'
 
 - stage: Deploy
+  dependsOn: Build
   jobs:
   - job: DeployJob
     displayName: 'Deploy Job'
-    dependsOn: Build
     steps:
     - checkout: self
     - task: AzureFunctionApp@1
