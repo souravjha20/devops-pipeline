@@ -114,7 +114,7 @@ stages:
   jobs:
   - job: DeployJob
     displayName: 'Deploy Job'
-    dependsOn: BuildJob  # Corrected dependency name
+    dependsOn: Build  # Corrected dependency name
     steps:
     - checkout: self
     - task: AzureFunctionApp@1
