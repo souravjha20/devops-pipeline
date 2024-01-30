@@ -124,8 +124,6 @@ stages:
         package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
         runtimeStack: 'NODE|20.x'
 
-- stage: IndependentDeploy
-  jobs:
   - job: IndependentDeployJob
     displayName: 'Independent Deploy Job'
     dependsOn: []
