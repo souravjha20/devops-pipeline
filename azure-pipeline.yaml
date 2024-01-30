@@ -1,0 +1,126 @@
+trigger:
+- kdcp-478-add-deploy-to-function-app  
+
+pr:
+- kdcp-478-add-deploy-to-function-app
+- main  
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - checkout: self
+
+    - task: SonarQubePrepare@5
+      inputs:
+        SonarQube: 'DOJO-SonarQube-Connection'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'KDCP'
+        cliProjectName: 'Work with Cancer'
+        cliProjectVersion: '1.0.0'
+        cliSources: '.'
+      displayName: 'Prepare SonarQube Analysis'
+
+    - task: SonarQubeAnalyze@5
+      displayName: 'Run Code Analysis'
+
+    - task: SonarQubePublish@5
+      inputs:
+        pollingTimeoutSec: '300'
+      displayName: 'Publish Quality Gate Results'
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
+
+    - script: |
+        npm install -g tag
+        npm install -g swagger-jsdoc
+        npm install -g swagger-ui-express
+        npm install -g @nestjs/core
+        npm install --save-dev @types/node
+        npm install -g file-system
+        npm install -g dotenv
+        npm install -g @nestjs/common
+        npm install -g @nestjs/cli
+        npm install -g next@latest
+        npm install -g turbo
+        npm install
+      displayName: 'npm install'
+
+    - script: |
+        cd apps
+        npm run build --workspace=web
+      displayName: 'npm build web'
+
+    - script: | 
+        cd apps
+        npm run lint --workspace=web
+        npm run test --workspace=web
+      displayName: 'npm lint and test web'
+
+    - script: |
+        cd apps
+        npm run build --workspace=splash
+      displayName: 'npm build splash'
+
+    - script: |
+        cd apps
+        npm run lint --workspace=splash
+        npm run test --workspace=splash
+      displayName: 'npm lint and test splash'
+
+    - script: |
+        cd apps
+        npm run build --workspace=sb
+      displayName: 'npm build sb'
+
+    - script: |
+        cd apps
+        npm run build --workspace=api
+      displayName: 'npm build api'
+
+    - script: |
+        cd apps
+        npm run lint --workspace=api
+        npm run test --workspace=api
+      displayName: 'npm lint and test api'
+
+    - script: |
+        cd apps
+        npm run build --workspace=docs
+      displayName: 'npm build docs'
+
+    - script: |
+        cd apps
+        npm run lint --workspace=docs
+      displayName: 'npm lint docs'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(System.DefaultWorkingDirectory)/build_artifact'
+        artifactName: 'recentbuild'
+        publishLocation: 'container'
+      displayName: 'Publish artifacts'
+
+- stage: Deploy
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Job'
+    dependsOn: Build
+    steps:
+    - checkout: self
+    - task: AzureFunctionApp@1
+      inputs:
+        azureSubscription: 'SAP-WWC-Platform-DEV-Connection'
+        appType: 'functionAppLinux'
+        appName: 'wwc-d-use2-fnapp'
+        package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
+        runtimeStack: 'NODE|20.x'
