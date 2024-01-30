@@ -14,7 +14,6 @@ stages:
   - job: BuildJob
     displayName: 'Build Job'
     steps:
-    - checkout: self
 
     # - task: SonarQubePrepare@5
     #   inputs:
@@ -114,7 +113,7 @@ stages:
   jobs:
   - job: DeployJob
     displayName: 'Deploy Job'
-    dependsOn: Build  # Corrected dependency name
+    dependsOn: Build
     steps:
     - checkout: self
     - task: AzureFunctionApp@1
@@ -125,7 +124,11 @@ stages:
         package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
         runtimeStack: 'NODE|20.x'
 
+- stage: IndependentDeploy
+  jobs:
   - job: IndependentDeployJob
     displayName: 'Independent Deploy Job'
+    dependsOn: []
     steps:
     - checkout: self
+    # Add your independent deployment steps here
