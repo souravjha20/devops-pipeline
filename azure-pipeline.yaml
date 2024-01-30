@@ -124,3 +124,8 @@ stages:
         appName: 'wwc-d-use2-fnapp'
         package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
         runtimeStack: 'NODE|20.x'
+
+  - job: IndependentDeployJob
+    displayName: 'Independent Deploy Job'
+    steps:
+    - checkout: self
