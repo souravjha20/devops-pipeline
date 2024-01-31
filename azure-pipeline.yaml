@@ -8,6 +8,17 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
+parameters:
+  - name: azureSubscription
+    displayName: Azure Subscription
+    type: string
+    values:
+      - SAP-WWC-Platform-DEV-Connection
+      - SAP-WWC-Platform-QA-Connection
+      - SAP-WWC-Platform-STAGE-Connection
+      - SAP-WWC-Platform-PROD-Connection
+    default: SAP-WWC-Platform-DEV-Connection
+
 stages:
 - stage: Build
   jobs:
@@ -109,24 +120,38 @@ stages:
         publishLocation: 'container'
       displayName: 'Publish artifacts'
 
+
 - stage: Deploy
   dependsOn: Build
   jobs:
+
+  - job: SetAppName
+    displayName: 'Set App Name'
+    steps:
+    - script: |
+        if [ "$(azureSubscription)" == "SAP-WWC-Platform-QA-Connection" ]; then
+          echo "##vso[task.setvariable variable=appName]wwc-q-use2-fnapp"
+        elif [ "$(azureSubscription)" == "SAP-WWC-Platform-STAGE-Connection" ]; then
+          echo "##vso[task.setvariable variable=appName]wwc-s-use2-fnapp"
+        elif [ "$(azureSubscription)" == "SAP-WWC-Platform-PROD-Connection" ]; then
+          echo "##vso[task.setvariable variable=appName]wwc-p-use2-fnapp"
+        else
+          echo "##vso[task.setvariable variable=appName]wwc-d-use2-fnapp"
+        fi
+        echo "Selected Azure Subscription: $(azureSubscription)"
+        echo "Selected App Name: $(appName)"
+      displayName: 'Set App Name'
+
   - job: DeployJob
     displayName: 'Deploy Job'
     steps:
     - checkout: self
     - task: AzureFunctionApp@1
       inputs:
-        azureSubscription: 'SAP-WWC-Platform-DEV-Connection'
+        azureSubscription: '$(azureSubscription)'
         appType: 'functionAppLinux'
-        appName: 'wwc-d-use2-fnapp'
+        appName: '$(appName)'
         package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
         runtimeStack: 'NODE|20.x'
 
-  - job: IndependentDeployJob
-    displayName: 'Independent Deploy Job'
-    dependsOn: []
-    steps:
-    - checkout: self
-    # Add your independent deployment steps here
+
