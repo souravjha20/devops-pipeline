@@ -145,4 +145,5 @@ stages:
               echo "##vso[task.setvariable variable=appName;isOutput=true]wwc-d-use2-fnapp"
             fi
           displayName: 'Set App Name'
-        - bash: echo "Selected App Name is $(appName)"
+
+        - script: echo "Selected App Name: $(appName)"
