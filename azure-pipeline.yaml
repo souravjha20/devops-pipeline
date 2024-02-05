@@ -156,9 +156,10 @@ stages:
         - checkout: self
         - task: AzureFunctionApp@1
           inputs:
-            azureSubscription: '$[ variables['azureSubscription'] ]'
+            azureSubscription: '$(azureSubscription)'
             appType: 'functionAppLinux'
             appName: '$(appName)'
             package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
             runtimeStack: 'NODE|20.x'
+
 
