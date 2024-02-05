@@ -1,9 +1,9 @@
 trigger:
-  - kdcp-478-add-deploy-to-function-app
+- kdcp-478-add-deploy-to-function-app  
 
 pr:
-  - kdcp-478-add-deploy-to-function-app
-  - main
+- kdcp-478-add-deploy-to-function-app
+- main  
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -19,30 +19,37 @@ parameters:
       - SAP-WWC-Platform-PROD-Connection
     default: SAP-WWC-Platform-DEV-Connection
 
-variables:
-  appName: ''
-
-stages:
 - stage: Deploy
+  dependsOn: Build
   jobs:
-    - job: DeployJob
-      displayName: 'Deploy Job'
-      dependsOn: SetAppName
-      variables:
-        azureSubscription: ${{ parameters.azureSubscription }}
 
-      steps:
-        - checkout: self
-        - script: |
-            if [ "${{ parameters.azureSubscription }}" == "SAP-WWC-Platform-QA-Connection" ]; then
-              echo "##vso[task.setvariable variable=appName;isOutput=true]wwc-q-use2-fnapp"
-            elif [ "${{ parameters.azureSubscription }}" == "SAP-WWC-Platform-STAGE-Connection" ]; then
-              echo "##vso[task.setvariable variable=appName;isOutput=true]wwc-s-use2-fnapp"
-            elif [ "${{ parameters.azureSubscription }}" == "SAP-WWC-Platform-PROD-Connection" ]; then
-              echo "##vso[task.setvariable variable=appName;isOutput=true]wwc-p-use2-fnapp"
-            else
-              echo "##vso[task.setvariable variable=appName;isOutput=true]wwc-d-use2-fnapp"
-            fi
-          displayName: 'Set App Name'
+  - job: SetAppName
+    displayName: 'Set App Name'
+    steps:
+    - script: |
+        if [ "$(azureSubscription)" == "SAP-WWC-Platform-QA-Connection" ]; then
+          echo "##vso[task.setvariable variable=appName]wwc-q-use2-fnapp"
+        elif [ "$(azureSubscription)" == "SAP-WWC-Platform-STAGE-Connection" ]; then
+          echo "##vso[task.setvariable variable=appName]wwc-s-use2-fnapp"
+        elif [ "$(azureSubscription)" == "SAP-WWC-Platform-PROD-Connection" ]; then
+          echo "##vso[task.setvariable variable=appName]wwc-p-use2-fnapp"
+        else
+          echo "##vso[task.setvariable variable=appName]wwc-d-use2-fnapp"
+        fi
+        echo "Selected Azure Subscription: $(azureSubscription)"
+        echo "Selected App Name: $(appName)"
+      displayName: 'Set App Name'
 
-        - script: echo "Selected App Name: $(appName)"
+  - job: DeployJob
+    displayName: 'Deploy Job'
+    steps:
+    - checkout: self
+    - task: AzureFunctionApp@1
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        appType: 'functionAppLinux'
+        appName: '$(appName)'
+        package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
+        runtimeStack: 'NODE|20.x'
+
+
