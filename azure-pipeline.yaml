@@ -151,12 +151,14 @@ stages:
       variables:
         appName: $[ dependencies.SetAppName.outputs['Set App Name.appName'] ]
         azureSubscription: ${{ parameters.azureSubscription }}
+
       steps:
         - checkout: self
         - task: AzureFunctionApp@1
           inputs:
-            azureSubscription: '$(azureSubscription)'
+            azureSubscription: '$[ variables['azureSubscription'] ]'
             appType: 'functionAppLinux'
             appName: '$(appName)'
             package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
             runtimeStack: 'NODE|20.x'
+
