@@ -18,9 +18,8 @@ parameters:
       - SAP-WWC-Platform-STAGE-Connection
       - SAP-WWC-Platform-PROD-Connection
     default: SAP-WWC-Platform-DEV-Connection
-
+stages:
 - stage: Deploy
-  dependsOn: Build
   jobs:
 
   - job: SetAppName
