@@ -134,7 +134,7 @@ stages:
 
       steps:
         - checkout: self
-        - bash: |
+        - script: |
             if [ "${{ parameters.azureSubscription }}" == "SAP-WWC-Platform-QA-Connection" ]; then
               echo "##vso[task.setvariable variable=appName;isOutput=true]wwc-q-use2-fnapp"
             elif [ "${{ parameters.azureSubscription }}" == "SAP-WWC-Platform-STAGE-Connection" ]; then
