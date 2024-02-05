@@ -146,4 +146,4 @@ stages:
             fi
           displayName: 'Set App Name'
 
-        - script: echo "Selected App Name: $(appName)"
+        # - script: echo "Selected App Name: $(appName)"
