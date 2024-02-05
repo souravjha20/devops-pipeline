@@ -26,24 +26,24 @@ stages:
     displayName: 'Build Job'
     steps:
 
-    - task: SonarQubePrepare@5
-      inputs:
-        SonarQube: 'DOJO-SonarQube-Connection'
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: 'KDCP'
-        cliProjectName: 'Work with Cancer'
-        cliProjectVersion: '1.0.0'
-        cliSources: '.'
-      displayName: 'Prepare SonarQube Analysis'
+    # - task: SonarQubePrepare@5
+    #   inputs:
+    #     SonarQube: 'DOJO-SonarQube-Connection'
+    #     scannerMode: 'CLI'
+    #     configMode: 'manual'
+    #     cliProjectKey: 'KDCP'
+    #     cliProjectName: 'Work with Cancer'
+    #     cliProjectVersion: '1.0.0'
+    #     cliSources: '.'
+    #   displayName: 'Prepare SonarQube Analysis'
 
-    - task: SonarQubeAnalyze@5
-      displayName: 'Run Code Analysis'
+    # - task: SonarQubeAnalyze@5
+    #   displayName: 'Run Code Analysis'
 
-    - task: SonarQubePublish@5
-      inputs:
-        pollingTimeoutSec: '300'
-      displayName: 'Publish Quality Gate Results'
+    # - task: SonarQubePublish@5
+    #   inputs:
+    #     pollingTimeoutSec: '300'
+    #   displayName: 'Publish Quality Gate Results'
 
     - task: NodeTool@0
       inputs:
