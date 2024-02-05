@@ -8,16 +8,10 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-parameters:
+variables:
   - name: azureSubscription
-    displayName: Azure Subscription
-    type: string
-    values:
-      - SAP-WWC-Platform-DEV-Connection
-      - SAP-WWC-Platform-QA-Connection
-      - SAP-WWC-Platform-STAGE-Connection
-      - SAP-WWC-Platform-PROD-Connection
-    default: SAP-WWC-Platform-DEV-Connection
+    value: 'SAP-WWC-Platform-DEV-Connection'  # You can set a default value here
+
 stages:
 - stage: Deploy
   jobs:
@@ -41,6 +35,7 @@ stages:
 
   - job: DeployJob
     displayName: 'Deploy Job'
+    dependsOn: SetAppName  # Ensure SetAppName job runs first
     steps:
     - checkout: self
     - task: AzureFunctionApp@1
@@ -50,5 +45,3 @@ stages:
         appName: '$(appName)'
         package: '$(Pipeline.Workspace)/deploy/deploy_artifact'
         runtimeStack: 'NODE|20.x'
-
-
