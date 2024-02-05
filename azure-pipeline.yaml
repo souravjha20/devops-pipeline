@@ -7,10 +7,27 @@ pr:
 
 pool:
   vmImage: 'ubuntu-latest'
-
-variables:
+  
+parameters:
   - name: azureSubscription
-    value: 'SAP-WWC-Platform-DEV-Connection'  # You can set a default value here
+    displayName: Azure Subscription
+    type: string
+    values:
+      - SAP-WWC-Platform-DEV-Connection
+      - SAP-WWC-Platform-QA-Connection
+      - SAP-WWC-Platform-STAGE-Connection
+      - SAP-WWC-Platform-PROD-Connection
+    default: SAP-WWC-Platform-DEV-Connection
+
+  - name: appName
+    displayName: App Name
+    type: string
+    values: 
+      - wwc-d-use2-fnapp
+      - wwc-q-use2-fnapp
+      - wwc-s-use2-fnapp
+      - wwc-p-use2-fnapp
+    default: wwc-d-use2-fnapp
 
 stages:
 - stage: Deploy
